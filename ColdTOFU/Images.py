@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from warnings import warn
 from .AndorSifReader import AndorSifFile
 import json
-import importlib.resources
+from importlib import resources
+import io
 from scipy.constants import *
 
 class rcParams():
@@ -21,8 +22,10 @@ class rcParams():
         params: dict, current parameters used by the package
     """
     def __init__(self):
-        with importlib.resources.open_text("TOFU", "rcParams.json") as file:
-            self.params = json.load(file)
+        with resources.open_binary("ColdTOFU", "rcParams.json") as file:
+            content = file.read()
+            self.path = os.path.abspath(file.name)
+            self.params = json.load(io.BytesIO(content))
             #print(os.getcwd())
             file.close()
     def update(self, key, value):
@@ -36,7 +39,7 @@ class rcParams():
                 desired parameter.
             value: value of the parameter to update.
         """
-        with open("TOFU/rcParams.json", 'w') as file:
+        with open(self.path, 'w') as file:
             self.params[key] = value
             json.dump(self.params, file)
             file.close()

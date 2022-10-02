@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
-Name: TOFU
-Version: 0.0.1
-Summary: Time-of-Flight Utilities
+Name: ColdTOFU
+Version: 0.0.3
+Summary: Cold Atoms Time-of-Flight Utilities
 Home-page: https://github.com/chetanmadasu/TOFU
 Author: Chetan Sriram Madasu
 Author-email: chetan.madasu@gmail.com

@@ -1,7 +1,7 @@
-TOFU
-====
+ColdTOFU
+========
 
 .. toctree::
    :maxdepth: 4
 
-   TOFU
+   ColdTOFU
