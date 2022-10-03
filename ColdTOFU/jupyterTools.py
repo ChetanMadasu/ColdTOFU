@@ -3,6 +3,17 @@ from IPython.display import display_latex
 from sympy import latex
 
 def update_progress(progress, clear=True, comment=''):
+    '''
+    Progress bar generated in a loop.
+
+    Parameters:
+        progress: int, current index
+        clear: bool, to clear the last output of the cell. Default True
+        comment: string, description of the progress bar.
+
+    Returns:
+        None
+    '''
     bar_length = 50
     if isinstance(progress, int):
         progress = float(progress)
@@ -20,6 +31,16 @@ def update_progress(progress, clear=True, comment=''):
     print(text)
 
 def disp(idx, symObj):
+    '''
+    Displays sympy symbolic objects in latex as an equation.
+
+    Parameters:
+        idx: string, latex code of varaible in RHS.
+        symObj: sympy.symbol object, symbol object to be displayed in LHS.
+
+    Returns:
+        None.
+    '''
     eqn = '\\[' + idx + ' = ' + latex(symObj) + '\\]'
     display_latex(eqn,raw=True)
     return

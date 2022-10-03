@@ -1,5 +1,21 @@
 from scipy.constants import *
-import math
+
+def sigmaGeneral(delta, wLen, Gamma, s=0):
+    """
+        Calculates the scattering cross-section of a two-level atom with a weak probe.
+
+        Parameters:
+            delta: float, detuning of the probe w.r.t the reference in MHz.
+            wLen: float, wavelength of the probe in nm
+            Gamma: flaot, linewidth of the excited state in MHz.
+            s: float, saturation parameter of the probe, :math:`I/I_s`.
+        Returns:
+            A float, Scattering cross-section.
+        Comment:
+            All frequencies are in MHz.
+    """
+    sigma_0 = 3*(wLen*nano)**2/(2*pi)
+    return sigma_0/(4*((delta/Gamma)**2+1+s))
 
 def sigmaBlue(delta, A, s=0):
     """

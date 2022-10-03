@@ -1,9 +1,41 @@
 import numpy as np
 from .Images import rcParams
-from .sigma import sigmaBlue, sigmaRed
+from .sigma import sigmaBlue, sigmaRed, sigmaGeneral
 from .fits import gaussian2DFit
 import matplotlib.pyplot as plt
 from scipy.constants import *
+
+def numAtomsGeneral(image, delta, wLen, Gamma, s=0, plot=True, p0=None, bounds=[(), ()]):
+    '''
+    Calculates number of atoms from blue shadow imaging.
+
+    Parameters:
+        image: a numpy.ndarray, OD from the experiment
+        delta: a float, detuning of the probe in MHz
+        wLen: float, wavelength of the probe in nm
+        Gamma: flaot, linewidth of the excited state in MHz.
+        s (optional): a float, saturation parameter of the probe. Default is 0.
+        plot (optional): a bool, flag to plot the gaussian fits if True.
+            Default is True.
+        p0 (optional): a list, initial guess parameters corresponding to gaussian2D function
+        bounds (optional): list of lists, bounds for parameters in the form `[[lower bounds], [upper bounds]]`.
+    Returns:
+        a tuple, `(number of atoms from 2D gaussian fit,
+        number of atoms from pixel sum, number density from gaussian fit,
+        sigma_x, sigma_y, amplitude, x0, y0)`
+    '''
+    scat = sigmaGeneral(delta, wLen, Gamma, s)
+    pOpt, pCov = gaussian2DFit(image, p0=p0, bounds=bounds, plot=plot)
+    amp, xo, yo, sigma_x, sigma_y, theta, offset = pOpt
+    imaging_params = rcParams().params
+    pixelSize = imaging_params['pixelSize']
+    magnification = imaging_params['magnification']
+    binning = imaging_params['binning']
+    NGaussian = 2*pi*amp*sigma_x*sigma_y*(pixelSize*binning/magnification)**2/scat
+    #NIntegrate = integrate.simps(integrate.simps(image))*(pixelSize*binning/magnification)**2/scat
+    NPixel = np.sum(np.sum(image, axis=0), axis=0)*(pixelSize*binning/magnification)**2/scat
+    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*(pixelSize*binning/magnification)**2)**(3/2))
+    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
 
 def numAtomsBlue(image, delta, s=0, plot=True, p0=None, bounds=[(), ()]):
     '''
@@ -12,15 +44,15 @@ def numAtomsBlue(image, delta, s=0, plot=True, p0=None, bounds=[(), ()]):
     Parameters:
         image: a numpy.ndarray, OD from the experiment
         delta: a float, detuning of the probe, 2*(AOMFreq-69) MHz
-        imaging_params: a dictionary with keys as follows
-            ex: {'binning':2, 'magnification': 2.2, 'pixelSize': 16*micro, 'saturation': 1 }
         s(optional): a float, saturation parameter of the probe. Default is 0.
         plot(optional): a bool, flag to plot the gaussian fits if True.
             Default is True.
+        p0 (optional): a list, initial guess parameters corresponding to gaussian2D function
+        bounds (optional): list of lists, bounds for parameters in the form `[[lower bounds], [upper bounds]]`.
     Returns:
-        a tuple, (number of atoms from 2D gaussian fit,
+        a tuple, `(number of atoms from 2D gaussian fit,
         number of atoms from pixel sum, number density from gaussian fit,
-        sigma_x, sigma_y, amplitude, x0, y0)
+        sigma_x, sigma_y, amplitude, x0, y0)`
     '''
     scat = sigmaBlue(delta, 87, s)
     pOpt, pCov = gaussian2DFit(image, p0=p0, bounds=bounds, plot=plot)
@@ -42,15 +74,15 @@ def numAtomsRed(image, delta, s=0, plot=True,p0=None,bounds=[(), ()]):
     Parameters:
         image: a numpy.ndarray, OD from the experiment
         delta: float, detuning of the probe in kHz
-        imaging_params: a dictionary with keys as follows
-            ex: {'binning':2, 'magnification': 2.2, 'pixelSize': 16*micro }
         s(optional): a float, saturation parameter of the probe. Default is 0.
         plot(optional): a bool, a flag to plot the gaussian fits if True.
             Default is True.
+        p0 (optional): a list, initial guess parameters corresponding to gaussian2D function
+        bounds (optional): list of lists, bounds for parameters in the form `[[lower bounds], [upper bounds]]`.
     Returns:
-        a tuple, (number of atoms from 2D gaussian fit,
+        a tuple, `(number of atoms from 2D gaussian fit,
         number of atoms from pixel sum, number density from gaussian fit,
-        sigma_x, sigma_y, amplitude, x0, y0)
+        sigma_x, sigma_y, amplitude, x0, y0)`
     """
     scat = sigmaRed(delta, s)
     pOpt, pCov = gaussian2DFit(image, p0=p0, bounds=bounds, plot=plot)

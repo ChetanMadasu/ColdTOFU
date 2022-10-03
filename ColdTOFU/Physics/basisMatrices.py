@@ -3,10 +3,18 @@ import scipy.linalg as ln
 
 
 class PauliBasis():
+    '''
+    A class to represent Pauli's spin basis.
+    '''
     def _init__(self):
         return self
 
     def matrices(self):
+        '''
+
+        Returns:
+            a list of 4 :math:`2\\times 2` matrices corresponding to :math:`I_2, \\sigma_x, \\sigma_y, \\sigma_z`
+        '''
         sigx = np.array([[0, 1], [1, 0]])
         sigy = np.array([[0, -1j], [1j, 0]])
         sigz = np.array([[1, 0], [0, -1]])
@@ -14,6 +22,15 @@ class PauliBasis():
         return np.array([Id, sigx, sigy, sigz])
 
     def decompose(self, A):
+        '''
+        Decomposes given non-singular :math:`2\\times 2` matrix in the Pauli basis.
+
+        Args:
+            A: :math:`2\\times 2` matrix to be decomposed.
+
+        Returns:
+            list of 4 components.
+        '''
         assert np.array(A).shape==(2,2), "Not a 2x2 matrix to decompose in pauli basis."
         l = self.matrices()
         M = np.zeros((4,4), dtype=complex)
