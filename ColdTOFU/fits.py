@@ -3,9 +3,23 @@ from scipy.optimize import curve_fit
 from scipy.constants import *
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from IPython.display import display_latex
 
-def gaussian(x, amplitude, xo, sigma_x, offset):
-    g = offset + amplitude*np.exp(-(x-xo)**2/(2*sigma_x**2))
+def gaussian(x, amplitude, x_0, sigma_x, offset):
+    '''
+    1D Gaussian function, :math:`f(x) = e^{\\frac{-(x-x_0)^2}{2\sigma_x^2}}+offset`
+
+    Parameters:
+        x: 1D array, x variable of the function
+        amplitude: float, amplitude of the gaussian
+        xo: float, center of the gaussian
+        sigma_x: float, width of the gaussian
+        offset: float, constant offset.
+
+    Returns:
+        1D array, returns f(x)
+    '''
+    g = offset + amplitude*np.exp(-(x-x_0)**2/(2*sigma_x**2))
     return g
 
 def gaussianFit(x, array, p0=[], bounds=[(), ()], plot=True):
@@ -19,17 +33,43 @@ def gaussianFit(x, array, p0=[], bounds=[(), ()], plot=True):
             [amplitude, xo, sigma, offset]. Default is None.
         bounds: tuple of lower bound and upper bound for the fit.
             Default is None.
+        plot: bool, Default is True
     Returns:
         pOpt: optimized parameters in the same order as p0
         pCov: covarience parameters of the fit.
         Read scipy.optimize.curve_fit for details.
     """
-    pOpt, pCov = curve_fit(gaussian, x, array, p0, bounds)
+    pOpt, pCov = curve_fit(gaussian, x, array, p0=p0, bounds=bounds)
+    labels = ['$A_0$', '$x_0$', '$\sigma_x$', 'offset']
+    for i in range(len(labels)):
+        display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
     if plot==True:
-        pass
-    return pOpt,pCov
+        xsmooth = np.linspace(x[0], x[-1], 1000)
+        plt.figure(figsize=(5,3.2))
+        plt.plot(x, array, 'o', label='data')
+        plt.plot(xsmooth, gaussian(xsmooth, *pOpt), '--k', label='fit')
+        plt.xlabel('x')
+        plt.legend()
+        plt.tight_layout()
+    return pOpt, pCov
 
 def gaussian2D(X, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
+    """
+    2D Gaussian function
+
+    Parameters:
+        X: np.meshgrid,
+        amplitude: float, amplitude
+        xo: float, x-center
+        yo: float, y-center
+        sigma_x: float, :math:`sigma_1`
+        sigma_y: float, :math:`sigma_2`
+        theta: float, angle of tilt
+        offset: float, offset
+
+    Returns:
+        1d array, flattened 2D array. Reshape it like (X[0], X[0][0]) to get a matrix representation of the gaussian.
+    """
     x = X[0]
     y = X[1]
     a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
@@ -276,27 +316,37 @@ def multipleGaussian2DFit(image, p0, bounds, TOF, plot=True, cropSize=6, toleren
         plt.tight_layout()
     return pOpt, pCov
 
-def lorentzian(x, amplitude, xo, gamma, offset):
-    l = offset + amplitude*(gamma/2)/((x-xo)**2+(gamma/2)**2)
+def lorentzian(x, amplitude, x_0, gamma, offset):
+    l = offset + amplitude*(gamma/2)/((x-x_0)**2+(gamma/2)**2)
     return l
 
-def lorentzianFit(x, array, p0=[], bounds=[(), ()], plot=False):
+def lorentzianFit(x, array, p0=[], bounds=[(), ()], plot=True):
     """
     Fits the given array to a Lorentzian.
 
     Parameters:
         array: 1darray, the data to fit to the lorentzian
         p0: ndarray, initial guess for the fit params in the form of
-            [amplitude, xo, gamma, offset]. Default is None.
+            [amplitude, xo, gamma, offset]. Default is [].
         bounds: tuple of lower bound and upper bound for the fit.
-            Default is None.
+            Default is [(), ()].
+        plot: bool, Default is True
     Returns:
         pOpt: optimized parameters in the same order as p0
         pCov: covarience parameters of the fit.
         Read scipy.optimize.curve_fit for details.
     """
     pOpt, pCov = curve_fit(lorentzian, x, array, p0, bounds=bounds)
-    if plot==True:
-        raise NotImplementedError
-    return pOpt,pCov
+    labels = ['$A_0$', '$x_0$', '$\gamma$', 'offset']
+    for i in range(len(labels)):
+        display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
+    if plot == True:
+        xsmooth = np.linspace(x[0], x[-1], 1000)
+        plt.figure(figsize=(5, 3.2))
+        plt.plot(x, array, 'o', label='data')
+        plt.plot(xsmooth, lorentzian(xsmooth, *pOpt), '--k', label='fit')
+        plt.xlabel('x')
+        plt.legend()
+        plt.tight_layout()
+    return pOpt, pCov
 

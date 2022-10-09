@@ -5,7 +5,8 @@ from cold atoms experiments.
 
 `pip install ColdTOFU==0.0.3`
 
+[![DOI](https://zenodo.org/badge/544229576.svg)](https://zenodo.org/badge/latestdoi/544229576)
 
 See requirements.txt for the necessary packages.
 
-See documentation in docs/coldtofu.pdf
+See documentation and examples [here](https://chetanmadasu.github.io/examples.html)

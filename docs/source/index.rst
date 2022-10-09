@@ -5,6 +5,8 @@
 
 Welcome to ColdTOFU's documentation!
 ====================================
+.. image:: https://zenodo.org/badge/544229576.svg
+   :target: https://zenodo.org/badge/latestdoi/544229576
 
 .. toctree::
    :maxdepth: 3
