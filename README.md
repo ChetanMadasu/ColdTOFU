@@ -3,7 +3,7 @@
 Time of flight utilities - a simple package built using numpy and scipy to analyze absorption and fluorescence images
 from cold atoms experiments.
 
-`pip install ColdTOFU==0.0.3`
+`pip install ColdTOFU`
 
 [![DOI](https://zenodo.org/badge/544229576.svg)](https://zenodo.org/badge/latestdoi/544229576)
 

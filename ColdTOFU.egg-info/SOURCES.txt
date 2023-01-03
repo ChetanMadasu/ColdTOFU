@@ -21,5 +21,6 @@ ColdTOFU.egg-info/top_level.txt
 ColdTOFU/Physics/__init__.py
 ColdTOFU/Physics/allenDeviation.py
 ColdTOFU/Physics/basisMatrices.py
+ColdTOFU/Physics/beams.py
 ColdTOFU/Physics/createAndDestroy.py
 ColdTOFU/Physics/spinInDickeBasis.py
