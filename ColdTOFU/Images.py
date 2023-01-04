@@ -3,11 +3,14 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from warnings import warn
-from .AndorSifReader import AndorSifFile
 import json
 from importlib import resources
 import io
 from scipy.constants import *
+from sys import platform
+import warnings
+
+
 
 class rcParams():
     """
@@ -26,7 +29,6 @@ class rcParams():
             content = file.read()
             self.path = os.path.abspath(file.name)
             self.params = json.load(io.BytesIO(content))
-            #print(os.getcwd())
             file.close()
     def update(self, key, value):
         """
@@ -80,8 +82,19 @@ class ShadowImage(object):
             self.im = Image.open(filePath)
             self.tags = self.im.tag.named()
         elif self.ext == '.sif':
-            self.im = AndorSifFile(filePath).signal
-            self.tags = self.im.props
+            if platform.startswith('win'):
+                from .AndorSifReader import AndorSifFile
+                self.im = AndorSifFile(filePath).signal
+                self.tags = self.im.props
+            elif platform.startswith('lin'):
+                warnings.warn(
+                    'Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+            elif platform.startswith('dar'):
+                warnings.warn(
+                    'Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+            else:
+                warnings.warn(
+                    'Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
             raise NotImplementedError('ShadowImage is implemeted to read only .tif or sif. files.')
         if self.im.n_frames%3!=0:
@@ -343,8 +356,19 @@ class FluorescenceImage(object):
             self.im = Image.open(filePath)
             self.tags = self.im.tag.named()
         elif self.ext == '.sif':
-            self.im = AndorSifFile(filePath).signal
-            self.tags = self.im.props
+            if platform.startswith('win'):
+                from .AndorSifReader import AndorSifFile
+                self.im = AndorSifFile(filePath).signal
+                self.tags = self.im.props
+            elif platform.startswith('lin'):
+                warnings.warn(
+                    'Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+            elif platform.startswith('dar'):
+                warnings.warn(
+                    'Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+            else:
+                warnings.warn(
+                    'Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
             raise IOError('Invalid file!')
         if self.im.n_frames%2!=0:
