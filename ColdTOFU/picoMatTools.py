@@ -74,7 +74,7 @@ def RIN(path, avg=30, channel='A'):
     for f in files[:avg]:
         data = loadmat(os.path.join(path, f))
         inLoop.append(2*abs(fft(data[channel][:,0])[:N//2]/N)**2/np.mean(data[channel][:, 0])**2)
-        inLoopRIN = np.mean(np.array(inLoop), axis=0)
-        inLoopRIN[0], inLoopRIN[-1] = inLoopRIN[0]/2, inLoopRIN[-1]/2
+    inLoopRIN = np.mean(np.array(inLoop), axis=0)
+    inLoopRIN[0], inLoopRIN[-1] = inLoopRIN[0]/2, inLoopRIN[-1]/2
     return frequencies, 10*np.log10(inLoopRIN)
 
