@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: ColdTOFU
-Version: 0.0.7
+Version: 0.0.8
 Summary: Cold Atoms Time-of-Flight Utilities
 Home-page: https://github.com/chetanmadasu/TOFU
 Author: Chetan Sriram Madasu
@@ -19,6 +19,10 @@ Time of flight utilities - a simple package built using numpy and scipy to analy
 from cold atoms experiments.
 
 `pip install ColdTOFU`
+
+or
+
+`pip install -e .` from the source directory to modify the code according to you usage.
 
 [![DOI](https://zenodo.org/badge/544229576.svg)](https://zenodo.org/badge/latestdoi/544229576)
 

@@ -8,7 +8,8 @@ from importlib import resources
 import io
 from scipy.constants import *
 from sys import platform
-import warnings
+
+
 
 
 
@@ -87,14 +88,11 @@ class ShadowImage(object):
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
             elif platform.startswith('lin'):
-                warnings.warn(
-                    'Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
             elif platform.startswith('dar'):
-                warnings.warn(
-                    'Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
             else:
-                warnings.warn(
-                    'Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
             raise NotImplementedError('ShadowImage is implemeted to read only .tif or sif. files.')
         if self.im.n_frames%3!=0:
@@ -241,7 +239,7 @@ class ShadowImage(object):
         OD = self.averagedSignalOD(nAveraging, truncate)
         f, ax = plt.subplots(nrows=len(OD), ncols=1, figsize=(4,len(OD)*2))
         for i in range(len(OD)):
-            a = ax[i].imshow(OD[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap=plt.cm.hot)
+            a = ax[i].imshow(OD[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap='hot')
             ax[i].grid(False)
             f.colorbar(a, ax=ax[i])
         plt.tight_layout()
@@ -361,14 +359,11 @@ class FluorescenceImage(object):
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
             elif platform.startswith('lin'):
-                warnings.warn(
-                    'Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
             elif platform.startswith('dar'):
-                warnings.warn(
-                    'Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
             else:
-                warnings.warn(
-                    'Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
+                warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
             raise IOError('Invalid file!')
         if self.im.n_frames%2!=0:
@@ -446,7 +441,7 @@ class FluorescenceImage(object):
         h = int(self.im.height/(self.im.width+self.im.height)*4)
         f, ax = plt.subplots(nrows=len(fl), ncols=1, figsize=(w, h))
         for i in range(len(fl)):
-            a = ax[i].imshow(fl[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap=plt.cm.hot)
+            a = ax[i].imshow(fl[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap='hot')
             ax[i].grid(False)
             f.colorbar(a, ax=ax[i])
         plt.tight_layout()
@@ -455,3 +450,53 @@ class FluorescenceImage(object):
     def __str__(self):
         return str(self.tags)
 
+
+def approximatePositionOfTheCloud(meanOD):
+    '''
+    A function to locate the atomic cloud in images.
+
+    Parameters:
+        meanOD: 2darray, image data usually OD image
+    Returns:
+        a tuple, (y center, x center, approximate size)
+    '''
+    y_, x_ = np.shape(meanOD)
+    size = 0
+    binary = meanOD > 0.5*(np.max(meanOD)-np.min(meanOD))
+    i0, i1 = np.nonzero(binary)
+    if len(i0) >= 0.5*y_*x_:
+        warn('Cloud center couldn\'t be determined. Images of the spectroscopy are likey to be noisy.'+
+             ' Choosing the center of the image as the approximate position of the cloud')
+        y = y_//2
+        x = x_//2
+    elif len(i0) == 0:
+        warn('Images likey do not contain any atoms.'+
+             ' Choosing the center of the image as the approximate position of the cloud')
+        y = y_//2
+        x = x_//2
+    else:
+        y = int(np.mean(i0))
+        x = int(np.mean(i1))
+        size = np.sqrt(len(i0))
+    return y, x, size
+
+
+def approximateROI(odimages):
+    '''
+    A function to provide approximate ROIs for fitting atomic cloud in the images using the function
+    approximatePositionOfTheCloud.
+
+    Parameters:
+        odimages: list of 2darrays(od images) or a 3darray for which ROIs have to be found
+
+    Returns:
+        2darray of dimension (odimages.shape[0], 4), [[y_start, y_end, x_start, x_end] for image 1, ...]
+    '''
+    ROI = []
+    for o in odimages:
+        y, x, size = approximatePositionOfTheCloud(o)
+        if size==0:
+            warn('ROIs could not be estimated. Set the ROIs manually.')
+            size=0.1*(x+y)/2
+        ROI.append([y-4*int(size), y+4*int(size), x-4*int(size), x+4*int(size)])
+    return np.array(ROI, dtype=int)

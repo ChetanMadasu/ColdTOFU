@@ -128,7 +128,7 @@ if platform.startswith('win'):
                       ATSIF_AT_U32: np.uint32,
                       ATSIF_AT_64: np.int64,
                       ATSIF_AT_U64: np.uint64,
-                      ATSIF_Float: np.float,
+                      ATSIF_Float: np.float64,
                       ATSIF_Double: np.double,
                       ATSIF_String: lambda x: x.decode()
                       }

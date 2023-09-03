@@ -22,7 +22,7 @@ def gaussian(x, amplitude, x_0, sigma_x, offset):
     g = offset + amplitude*np.exp(-(x-x_0)**2/(2*sigma_x**2))
     return g
 
-def gaussianFit(x, array, p0=[], bounds=[(), ()], plot=True):
+def gaussianFit(x, array, p0=[], bounds=[(), ()], plot=True, display=True):
     """
     Fits the given array to an 1D-gaussian.
 
@@ -34,15 +34,17 @@ def gaussianFit(x, array, p0=[], bounds=[(), ()], plot=True):
         bounds: tuple of lower bound and upper bound for the fit.
             Default is None.
         plot: bool, Default is True
+        display: bool, Default is True. Displays the optimal parameters of the fit
     Returns:
         pOpt: optimized parameters in the same order as p0
         pCov: covarience parameters of the fit.
         Read scipy.optimize.curve_fit for details.
     """
     pOpt, pCov = curve_fit(gaussian, x, array, p0=p0, bounds=bounds)
-    labels = ['$A_0$', '$x_0$', '$\sigma_x$', 'offset']
-    for i in range(len(labels)):
-        display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
+    if display == True:
+        labels = ['$A_0$', '$x_0$', '$\sigma_x$', 'offset']
+        for i in range(len(labels)):
+            display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
     if plot==True:
         xsmooth = np.linspace(x[0], x[-1], 1000)
         plt.figure(figsize=(5,3.2))
@@ -320,7 +322,7 @@ def lorentzian(x, amplitude, x_0, gamma, offset):
     l = offset + amplitude*(gamma/2)/((x-x_0)**2+(gamma/2)**2)
     return l
 
-def lorentzianFit(x, array, p0=[], bounds=[(), ()], plot=True):
+def lorentzianFit(x, array, p0=[], bounds=[(), ()], plot=True, display=True):
     """
     Fits the given array to a Lorentzian.
 
@@ -331,15 +333,17 @@ def lorentzianFit(x, array, p0=[], bounds=[(), ()], plot=True):
         bounds: tuple of lower bound and upper bound for the fit.
             Default is [(), ()].
         plot: bool, Default is True
+        display: bool, Default is True. Displays the optimal parameters of the fit
     Returns:
         pOpt: optimized parameters in the same order as p0
         pCov: covarience parameters of the fit.
         Read scipy.optimize.curve_fit for details.
     """
     pOpt, pCov = curve_fit(lorentzian, x, array, p0, bounds=bounds)
-    labels = ['$A_0$', '$x_0$', '$\gamma$', 'offset']
-    for i in range(len(labels)):
-        display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
+    if display == True:
+        labels = ['$A_0$', '$x_0$', '$\gamma$', 'offset']
+        for i in range(len(labels)):
+            display_latex('{} = {:.3f}'.format(labels[i], pOpt[i]), raw=True)
     if plot == True:
         xsmooth = np.linspace(x[0], x[-1], 1000)
         plt.figure(figsize=(5, 3.2))
