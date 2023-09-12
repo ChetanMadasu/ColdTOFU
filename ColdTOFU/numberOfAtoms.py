@@ -31,10 +31,11 @@ def numAtomsGeneral(image, delta, wLen, Gamma, s=0, plot=True, p0=None, bounds=[
     pixelSize = imaging_params['pixelSize']
     magnification = imaging_params['magnification']
     binning = imaging_params['binning']
-    NGaussian = 2*pi*amp*sigma_x*sigma_y*(pixelSize*binning/magnification)**2/scat
-    NPixel = np.sum(np.sum(image, axis=0), axis=0)*(pixelSize*binning/magnification)**2/scat
-    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*(pixelSize*binning/magnification)**2)**(3/2))
-    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
+    fac = (pixelSize*binning/magnification)
+    NGaussian = 2*pi*amp*sigma_x*sigma_y*fac**2/scat
+    NPixel = np.sum(np.sum(image, axis=0), axis=0)*fac**2/scat
+    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*fac**2)**(3/2))
+    return NGaussian, NPixel, Ndensity, sigma_x*fac, sigma_y*fac, amp, xo, yo
 
 def numAtomsBlue(image, delta, s=0, plot=True, p0=None, bounds=[(), ()]):
     '''
@@ -60,10 +61,11 @@ def numAtomsBlue(image, delta, s=0, plot=True, p0=None, bounds=[(), ()]):
     pixelSize = imaging_params['pixelSize']
     magnification = imaging_params['magnification']
     binning = imaging_params['binning']
-    NGaussian = 2*pi*amp*sigma_x*sigma_y*(pixelSize*binning/magnification)**2/scat
-    NPixel = np.sum(np.sum(image, axis=0), axis=0)*(pixelSize*binning/magnification)**2/scat
-    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*(pixelSize*binning/magnification)**2)**(3/2))
-    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
+    fac = (pixelSize*binning/magnification)
+    NGaussian = 2*pi*amp*sigma_x*sigma_y*fac**2/scat
+    NPixel = np.sum(np.sum(image, axis=0), axis=0)*fac**2/scat
+    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*fac**2)**(3/2))
+    return NGaussian, NPixel, Ndensity, sigma_x*fac, sigma_y*fac, amp, xo, yo
 
 def numAtomsRed(image, delta, s=0, plot=True,p0=None,bounds=[(), ()]):
     """
@@ -89,11 +91,11 @@ def numAtomsRed(image, delta, s=0, plot=True,p0=None,bounds=[(), ()]):
     pixelSize = imaging_params['pixelSize']
     magnification = imaging_params['magnification']
     binning = imaging_params['binning']
-    NGaussian = 2*pi*amp*sigma_x*sigma_y*(pixelSize*binning/magnification)**2/scat
-    #NIntegrate = integrate.simps(integrate.simps(image))*(pixelSize*binning/magnification)**2/scat
-    NPixel = np.sum(np.sum(image, axis=0), axis=0)*(pixelSize*binning/magnification)**2/scat
-    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*(pixelSize*binning/magnification)**2)**(3/2))
-    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
+    fac = (pixelSize*binning/magnification)
+    NGaussian = 2*pi*amp*sigma_x*sigma_y*fac**2/scat
+    NPixel = np.sum(np.sum(image, axis=0), axis=0)*fac**2/scat
+    Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*fac**2)**(3/2))
+    return NGaussian, NPixel, Ndensity, sigma_x*fac, sigma_y*fac, amp, xo, yo
 
 
 def temperature(sizes, timeStamps, plot=True):

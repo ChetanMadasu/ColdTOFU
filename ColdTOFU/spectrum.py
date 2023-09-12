@@ -1,5 +1,5 @@
 from .fits import lorentzian, lorentzianFit, gaussian2DFit, gaussianFit, gaussian
-from .sigma import sigmaRed
+import os
 from .Images import approximatePositionOfTheCloud, rcParams
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
@@ -62,9 +62,8 @@ def spectroscopy(ODimages, f, d=4, atom_loss=False, plot=True, fileNum='', lor_f
                 pOpt, pCov = lorentzianFit(f, np.array(index), p0=[max(index), f[maxODAt], 0.1, 0], plot=False, display=False)
         except RuntimeError:
             pOpt = []
-
     if plot == True:
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,4))
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(9,3))
         i = ax[0].imshow(ODimages[critical])
         fig.colorbar(i, ax=ax[0])
         ax[0].scatter(x+1, y+1, marker='+', color='r')
@@ -76,17 +75,22 @@ def spectroscopy(ODimages, f, d=4, atom_loss=False, plot=True, fileNum='', lor_f
         if pOpt!=[]:
             if lor_fit == True:
                 ax[1].plot(f_smooth, lorentzian(f_smooth, *pOpt), 'k',
-                           label=r'lor. fit: $\Gamma = {:.3f}, f_0 = {:.3f}$'.format(abs(pOpt[2]), pOpt[1]))
+                           label='lor. fit:\n$\Gamma = {:.3f}$\n$f_0 = {:.3f}$'.format(abs(pOpt[2]), pOpt[1]))
             else:
                 ax[1].plot(f_smooth, gaussian(f_smooth, *pOpt), 'k',
-                           label=r'gaus. fit: $\sigma = {:.3f}, f_0 = {:.3f}$'.format(abs(pOpt[2]), pOpt[1]))
+                           label='gaus. fit:\n $\sigma = {:.3f}$\n$f_0 = {:.3f}$'.format(abs(pOpt[2]), pOpt[1]))
             ax[1].legend()
-        ax[1].set_ylabel('$\propto$ OD', fontsize=16)
-        ax[1].set_xlabel('$f$', fontsize=16)
+        ax[1].set_ylabel('$\propto$ OD')
+        ax[1].set_xlabel('$f$')
         ax[1].set_title(r'$f_{start}$ = '+str(f[0])+', $f_{step}$ = '+str(step)+', file = '+fileNum)
         plt.tight_layout()
         if savefig==True:
-            plt.savefig('spectroscopy results/SpectroscopyResultFor'+fileNum+'.png', transparent=True)
+            try:
+                plt.savefig('ColdTOFU_results/spectroscopy_result_for'+fileNum+'.png', transparent=True)
+            except FileNotFoundError:
+                pwd = os.getcwd()
+                os.mkdir(os.path.join(pwd, 'ColdTOFU_results'))
+                plt.savefig('ColdTOFU_results/spectroscopy_result_for'+fileNum+'.png', transparent=True)
     return pOpt, index # amp, centre, gamma, offset
 
 def bv(f, f0, b0, T, s, offset):
@@ -179,7 +183,7 @@ def spectroscopyFaddeva(ODimages, f, plot=True, atom_loss=False, fileNum='', sav
     
 
     if plot == True:
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,4))
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(9,3))
         if size != 0:
             i = ax[0].imshow(ODimages[maxODAt][y-3*int(size):y+3*int(size), x-3*int(size):x+3*int(size)])
         else:
@@ -198,10 +202,15 @@ def spectroscopyFaddeva(ODimages, f, plot=True, atom_loss=False, fileNum='', sav
                                                   '$f_0$ = '+str(np.round(pOpt[0], 3))+'\n'+
                                                   's = '+str(np.round(pOpt[3], 2)))
             ax[1].legend(loc='upper right')
-        ax[1].set_ylabel('OD', fontsize=16) # ignore comment \\times \sigma_x \\times \sigma_y
-        ax[1].set_xlabel('$f$', fontsize=16)
+        ax[1].set_ylabel('OD') # ignore comment \\times \sigma_x \\times \sigma_y
+        ax[1].set_xlabel('$f$')
         ax[1].set_title(r'$f_{start}$ = '+str(f[0])+', $f_{step}$ = '+str(step)+', file = '+fileNum)
         plt.tight_layout()
         if savefig==True:
-            plt.savefig('spectroscopy results/SpectroscopyFaddevaResultFor'+fileNum+'.png', transparent=True)
+            try:
+                plt.savefig('ColdTOFU_results/spectroscopy_Faddeva_result_for'+fileNum+'.png', transparent=True)
+            except FileNotFoundError:
+                pwd = os.getcwd()
+                os.mkdir(os.path.join(pwd, 'ColdTOFU_results'))
+                plt.savefig('ColdTOFU_results/spectroscopy_Faddeva_result_for'+fileNum+'.png', transparent=True)
     return pOpt, index

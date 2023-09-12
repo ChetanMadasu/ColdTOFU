@@ -7,7 +7,7 @@ from cold atoms experiments.
 
 or
 
-`pip install -e .` from the source directory to modify the code according to you usage.
+`pip install -e .` from the source directory to modify the code according to your usage.
 
 [![DOI](https://zenodo.org/badge/544229576.svg)](https://zenodo.org/badge/latestdoi/544229576)
 

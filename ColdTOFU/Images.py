@@ -7,7 +7,8 @@ import json
 from importlib import resources
 import io
 from scipy.constants import *
-from sys import platform
+import sys
+import datetime as dt
 
 
 
@@ -83,13 +84,13 @@ class ShadowImage(object):
             self.im = Image.open(filePath)
             self.tags = self.im.tag.named()
         elif self.ext == '.sif':
-            if platform.startswith('win'):
+            if sys.platform.startswith('win'):
                 from .AndorSifReader import AndorSifFile
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
-            elif platform.startswith('lin'):
+            elif sys.platform.startswith('lin'):
                 warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
-            elif platform.startswith('dar'):
+            elif sys.platform.startswith('dar'):
                 warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
@@ -101,6 +102,7 @@ class ShadowImage(object):
         self.n = self.im.n_frames//3
         self.frames = self.images()
         self.params = rcParams().params
+        self.docs = None
 
     def images(self):
         """
@@ -239,7 +241,7 @@ class ShadowImage(object):
         OD = self.averagedSignalOD(nAveraging, truncate)
         f, ax = plt.subplots(nrows=len(OD), ncols=1, figsize=(4,len(OD)*2))
         for i in range(len(OD)):
-            a = ax[i].imshow(OD[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap='hot')
+            a = ax[i].imshow(OD[i, ROI[0]:ROI[1], ROI[2]:ROI[3]])
             ax[i].grid(False)
             f.colorbar(a, ax=ax[i])
         plt.tight_layout()
@@ -257,6 +259,7 @@ class ShadowImage(object):
         path, ext = os.path.splitext(self.filePath)
         newPath = path+'cmtd'+ext
         self.im.save(newPath, save_all=True, description=str(comment))
+        self.im.close()
         os.replace(newPath, self.filePath)
 
     def description(self):
@@ -329,6 +332,43 @@ class ShadowImage(object):
     def __str__(self):
         return str(self.tags)
 
+    ### Shadow image context manager methods for logging
+    def __enter__(self):
+        self.call_stack = []
+        self.original_trace_function = sys.gettrace()
+        sys.settrace(self.log_function_call)
+        now = dt.datetime.now()
+        filename='log_'+now.strftime('%Y%m%d')+'.md'
+        try:
+            self.log_file = open('ColdTOFU_results/'+filename, 'a+')
+        except FileNotFoundError:
+            pwd = os.getcwd()
+            os.mkdir(os.path.join(pwd, 'ColdTOFU_results'))
+            self.log_file = open('ColdTOFU_results/'+filename, 'a+')
+        self.log_file.write('_'*20+'\n')
+        self.log_file.write(now.strftime('%Y-%m-%d %H:%M:%S')+'\n')
+        self.log_file.write('* path: {}, number of shadow images: {}\n'.format(self.filePath, self.n))
+        return self
+
+    def log_function_call(self, frame, event, args):
+        if event == "call":
+            function_name = frame.f_code.co_name
+            module_name = frame.f_globals.get('__name__', '')
+            if module_name.startswith('ColdTOFU.spectrum') or module_name.startswith('ColdTOFU.numberOfAtoms'):
+                self.call_stack.append(f'`{module_name}.{function_name}`')
+
+    def write_docs(self, docs):
+        self.log_file.write('* {}\n'.format(docs))
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        sys.settrace(self.original_trace_function)
+        self.log_file.write('* averaging: {}\n* function calls:\n\t* '.format(self.n//self.nSamples))
+        self.log_file.write('\n\t* '.join(self.call_stack))
+        self.log_file.write('\n')
+        if exc_type!=None:
+            self.write_docs(exc_type)
+            self.write_docs(exc_value)
+        self.log_file.close()
 
 class FluorescenceImage(object):
     """
@@ -354,13 +394,13 @@ class FluorescenceImage(object):
             self.im = Image.open(filePath)
             self.tags = self.im.tag.named()
         elif self.ext == '.sif':
-            if platform.startswith('win'):
+            if sys.platform.startswith('win'):
                 from .AndorSifReader import AndorSifFile
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
-            elif platform.startswith('lin'):
+            elif sys.platform.startswith('lin'):
                 warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
-            elif platform.startswith('dar'):
+            elif sys.platform.startswith('dar'):
                 warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
@@ -441,7 +481,7 @@ class FluorescenceImage(object):
         h = int(self.im.height/(self.im.width+self.im.height)*4)
         f, ax = plt.subplots(nrows=len(fl), ncols=1, figsize=(w, h))
         for i in range(len(fl)):
-            a = ax[i].imshow(fl[i, ROI[0]:ROI[1], ROI[2]:ROI[3]], cmap='hot')
+            a = ax[i].imshow(fl[i, ROI[0]:ROI[1], ROI[2]:ROI[3]])
             ax[i].grid(False)
             f.colorbar(a, ax=ax[i])
         plt.tight_layout()
@@ -449,6 +489,43 @@ class FluorescenceImage(object):
 
     def __str__(self):
         return str(self.tags)
+
+    def __enter__(self):
+        self.call_stack = []
+        self.original_trace_function = sys.gettrace()
+        sys.settrace(self.log_function_call)
+        now = dt.datetime.now()
+        filename = 'log_'+now.strftime('%Y%m%d')+'.md'
+        try:
+            self.log_file = open('ColdTOFU_results/'+filename, 'a+')
+        except FileNotFoundError:
+            pwd = os.getcwd()
+            os.mkdir(os.path.join(pwd, 'ColdTOFU_results'))
+            self.log_file = open('ColdTOFU_results/'+filename, 'a+')
+        self.log_file.write('_'*20+'\n')
+        self.log_file.write(now.strftime('%Y-%m-%d %H:%M:%S')+'\n')
+        self.log_file.write('* path: {}, number of fluorescence images: {}\n'.format(self.filePath, self.n))
+        return self
+
+    def log_function_call(self, frame, event, args):
+        if event == "call":
+            function_name = frame.f_code.co_name
+            module_name = frame.f_globals.get('__name__', '')
+            if module_name.startswith('ColdTOFU.spectrum') or module_name.startswith('ColdTOFU.numberOfAtoms'):
+                self.call_stack.append(f'`{module_name}.{function_name}`')
+
+    def write_docs(self, docs):
+        self.log_file.write('* {}\n'.format(docs))
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        sys.settrace(self.original_trace_function)
+        self.log_file.write('* averaging: {}\n* function calls:\n\t* '.format(self.n//self.nSamples))
+        self.log_file.write('\n\t* '.join(self.call_stack))
+        self.log_file.write('\n')
+        if exc_type!=None:
+            self.write_docs(exc_type)
+            self.write_docs(exc_value)
+        self.log_file.close()
 
 
 def approximatePositionOfTheCloud(meanOD):
