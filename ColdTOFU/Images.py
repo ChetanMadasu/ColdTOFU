@@ -260,7 +260,7 @@ class ShadowImage(object):
         newPath = path+'cmtd'+ext
         self.im.save(newPath, save_all=True, description=str(comment))
         self.im.close()
-        os.replace(newPath, self.filePath)
+        #os.replace(newPath, self.filePath)
 
     def description(self):
         """
@@ -331,6 +331,16 @@ class ShadowImage(object):
 
     def __str__(self):
         return str(self.tags)
+
+    def __add__(self, im2):
+        if isinstance(im2, ShadowImage)==True:
+            n = im2.im.n_frames//3
+            frames = im2.images()
+            self.n +=n
+            self.frames = np.concatenate((self.frames, frames), axis=0)
+            return self
+        else:
+            warn('add operation types is not same')
 
     ### Shadow image context manager methods for logging
     def __enter__(self):
