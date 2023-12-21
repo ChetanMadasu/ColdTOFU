@@ -10,10 +10,6 @@ from scipy.constants import *
 import sys
 import datetime as dt
 
-
-
-
-
 class rcParams():
     """
     A class that is designed to read and update resource parameters of the package. These parameters are usually the
@@ -564,7 +560,7 @@ def approximatePositionOfTheCloud(meanOD):
     else:
         y = int(np.mean(i0))
         x = int(np.mean(i1))
-        size = np.sqrt(len(i0))
+        size = np.sqrt(len(i0)/np.pi)
     return y, x, size
 
 
@@ -579,11 +575,22 @@ def approximateROI(odimages):
     Returns:
         2darray of dimension (odimages.shape[0], 4), [[y_start, y_end, x_start, x_end] for image 1, ...]
     '''
-    ROI = []
+    ROIs = []
     for o in odimages:
         y, x, size = approximatePositionOfTheCloud(o)
+        y_, x_ = np.shape(o)
         if size==0:
             warn('ROIs could not be estimated. Set the ROIs manually.')
             size=0.1*(x+y)/2
-        ROI.append([y-4*int(size), y+4*int(size), x-4*int(size), x+4*int(size)])
-    return np.array(ROI, dtype=int)
+        y0, y1, x0, x1 = y-2*int(size), y+2*int(size), x-2*int(size), x+2*int(size)
+        if y0<0:
+            y0=0
+        if y1>y_:
+            y1=y_-1
+        if x0<0:
+            x0=0
+        if x1>x_:
+            x1=x_-1
+        ROIs.append([y0,y1,x0,x1])
+    res = np.array(ROIs, dtype=int)
+    return res

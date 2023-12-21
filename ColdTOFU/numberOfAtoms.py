@@ -35,7 +35,7 @@ def numAtomsGeneral(image, delta, wLen, Gamma, s=0, plot=True, p0=None, bounds=[
     NGaussian = 2*pi*amp*sigma_x*sigma_y*fac**2/scat
     NPixel = np.sum(np.sum(image, axis=0), axis=0)*fac**2/scat
     Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*fac**2)**(3/2))
-    return NGaussian, NPixel, Ndensity, sigma_x*fac, sigma_y*fac, amp, xo, yo
+    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
 
 def numAtomsBlue(image, delta, s=0, plot=True, p0=None, bounds=[(), ()]):
     '''
@@ -95,7 +95,7 @@ def numAtomsRed(image, delta, s=0, plot=True,p0=None,bounds=[(), ()]):
     NGaussian = 2*pi*amp*sigma_x*sigma_y*fac**2/scat
     NPixel = np.sum(np.sum(image, axis=0), axis=0)*fac**2/scat
     Ndensity = NGaussian/((2*pi*sigma_x*sigma_y*fac**2)**(3/2))
-    return NGaussian, NPixel, Ndensity, sigma_x*fac, sigma_y*fac, amp, xo, yo
+    return NGaussian, NPixel, Ndensity, sigma_x, sigma_y, amp, xo, yo
 
 
 def temperature(sizes, timeStamps, plot=True):
