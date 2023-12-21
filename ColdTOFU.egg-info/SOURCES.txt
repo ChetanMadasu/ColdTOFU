@@ -5,6 +5,7 @@ pyproject.toml
 setup.cfg
 ColdTOFU/ATSIFIO64.dll
 ColdTOFU/AndorSifReader.py
+ColdTOFU/Helvetica_bright.mplstyle
 ColdTOFU/Images.py
 ColdTOFU/__init__.py
 ColdTOFU/fits.py
@@ -12,6 +13,7 @@ ColdTOFU/jupyterTools.py
 ColdTOFU/numberOfAtoms.py
 ColdTOFU/picoMatTools.py
 ColdTOFU/rcParams.json
+ColdTOFU/scientific_serif.mplstyle
 ColdTOFU/sigma.py
 ColdTOFU/spectrum.py
 ColdTOFU.egg-info/PKG-INFO
