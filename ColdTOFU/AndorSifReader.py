@@ -372,8 +372,9 @@ if platform.startswith('win'):
             return np.ctypeslib.as_array(data)
 
 elif platform.startswith('lin'):
-    warnings.warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+    warnings.warn('Andor *.sif files are read by sif-parser not by using ATSIFIO64.dll')
 elif platform.startswith('dar'):
-    warnings.warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+    warnings.warn('Andor *.sif files are read by sif-parser not by using ATSIFIO64.dll')
 else:
-    warnings.warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
+    warnings.warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.\
+                   Try sif-parser package to read and implement it in __init__ of FluorescenceImage.')

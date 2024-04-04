@@ -9,6 +9,7 @@ import io
 from scipy.constants import *
 import sys
 import datetime as dt
+from sif_parser import np_open
 
 class rcParams():
     """
@@ -84,18 +85,33 @@ class ShadowImage(object):
                 from .AndorSifReader import AndorSifFile
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
+                self.frames = self.im.data
             elif sys.platform.startswith('lin'):
-                warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+                try:
+                    data_read = np_open(filePath)
+                    self.frames = data_read[0]
+                    self.im = Image.fromarray(data_read[0][0])
+                    self.im.n_frames = len(self.frames)
+                    self.tags = data_read[1]
+                except IOError:
+                    warn('Sif file could not be read. Try on Windows machine')
             elif sys.platform.startswith('dar'):
-                warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+                try:
+                    data_read = np_open(filePath)
+                    self.frames = data_read[0]
+                    self.im = Image.fromarray(data_read[0][0])
+                    self.im.n_frames = len(self.frames)
+                    self.tags = data_read[1]
+                except IOError:
+                    warn('Sif file could not be read. Try on Windows machine')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
-            raise NotImplementedError('ShadowImage is implemeted to read only .tif or sif. files.')
-        if self.im.n_frames%3!=0:
-            warn('Not a valid shadow image. \
-                  No. of images in the file is not a multiple of 3.')
-        self.n = self.im.n_frames//3
+            raise IOError('Invalid file!')
+        if self.im.n_frames%2!=0:
+            warn('Not a valid fluorescence image. \
+                  No. of images in the file is not a multiple of 2.')
+        self.n = self.im.n_frames//2
         self.frames = self.images()
         self.params = rcParams().params
         self.docs = None
@@ -110,9 +126,11 @@ class ShadowImage(object):
                 self.im.seek(i)
                 frames[i] = np.array(self.im)
             return frames
-        elif self.ext == '.sif':
+        elif self.ext == '.sif' and sys.platform.startswith('win'):
             frames = self.im.data
             return frames
+        else:
+            return self.frames
 
     def opticalDepth(self, xSpan, ySpan):
         """
@@ -404,10 +422,25 @@ class FluorescenceImage(object):
                 from .AndorSifReader import AndorSifFile
                 self.im = AndorSifFile(filePath).signal
                 self.tags = self.im.props
+                self.frames = self.im.data
             elif sys.platform.startswith('lin'):
-                warn('Andor *.sif files could not be read in linux as ATSIFIO64.dll is only available for windows.')
+                try:
+                    data_read = np_open(filePath)
+                    self.frames = data_read[0]
+                    self.im = Image.fromarray(data_read[0][0])
+                    self.im.n_frames = len(self.frames)
+                    self.tags = data_read[1]
+                except IOError:
+                    warn('Sif file could not be read. Try on Windows machine')
             elif sys.platform.startswith('dar'):
-                warn('Andor *.sif files could not be read in Mac OS as ATSIFIO64.dll is only available for windows.')
+                try:
+                    data_read = np_open(filePath)
+                    self.frames = data_read[0]
+                    self.im = Image.fromarray(data_read[0][0])
+                    self.im.n_frames = len(self.frames)
+                    self.tags = data_read[1]
+                except IOError:
+                    warn('Sif file could not be read. Try on Windows machine')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
@@ -428,9 +461,11 @@ class FluorescenceImage(object):
                 self.im.seek(i)
                 frames[i] = np.array(self.im)
             return frames
-        elif self.ext == '.sif':
+        elif self.ext == '.sif' and sys.platform.startswith('win'):
             frames = self.im.data
             return frames
+        else:
+            return self.frames
     
     def fluorescence(self, xSpan, ySpan):
         """
@@ -532,7 +567,6 @@ class FluorescenceImage(object):
             self.write_docs(exc_type)
             self.write_docs(exc_value)
         self.log_file.close()
-
 
 def approximatePositionOfTheCloud(meanOD):
     '''

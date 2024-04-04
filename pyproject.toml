@@ -1,6 +1,13 @@
 [build-system]
 requires = [
     "setuptools>=42",
-    "wheel"
+    "wheel",
+    "numpy",
+    "scipy",
+    "pillow",
+    "sympy",
+    "matplotlib>=3.8",
+    "ipython",
+    "sif-parser"
 ]
 build-backend = "setuptools.build_meta"
