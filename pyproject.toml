@@ -2,9 +2,6 @@
 requires = [
     "setuptools>=42",
     "wheel",
-]
-
-dependencies = [
     "sif-parser",
     "numpy",
     "scipy",

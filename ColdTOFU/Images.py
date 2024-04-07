@@ -78,7 +78,7 @@ class ShadowImage(object):
         self.filePath = filePath
         self.ext = os.path.splitext(filePath)[1]
         if self.ext == '.tif':
-            self.im = Image.open(filePath)
+            self.im = Image.open(filePath, formats=['TIFF'])
             self.tags = self.im.tag.named()
         elif self.ext == '.sif':
             if sys.platform.startswith('win'):
