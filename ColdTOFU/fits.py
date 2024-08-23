@@ -64,8 +64,8 @@ def gaussian2D(X, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
         amplitude: float, amplitude
         xo: float, x-center
         yo: float, y-center
-        sigma_x: float, :math:`sigma_1`
-        sigma_y: float, :math:`sigma_2`
+        sigma_x: float, :math:`\sigma_1`
+        sigma_y: float, :math:`\sigma_2`
         theta: float, angle of tilt
         offset: float, offset
 

@@ -94,7 +94,7 @@ class ShadowImage(object):
                     self.im.n_frames = len(self.frames)
                     self.tags = data_read[1]
                 except IOError:
-                    warn('Sif file could not be read. Try on Windows machine')
+                    raise IOError('Sif file could not be read or file doesn\'t exist. Try on Windows machine.')
             elif sys.platform.startswith('dar'):
                 try:
                     data_read = np_open(filePath)
@@ -103,7 +103,7 @@ class ShadowImage(object):
                     self.im.n_frames = len(self.frames)
                     self.tags = data_read[1]
                 except IOError:
-                    warn('Sif file could not be read. Try on Windows machine')
+                    raise IOError('Sif file could not be read or file doesn\'t exist. Try on Windows machine.')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
@@ -111,7 +111,7 @@ class ShadowImage(object):
         if self.im.n_frames%2!=0:
             warn('Not a valid fluorescence image. \
                   No. of images in the file is not a multiple of 2.')
-        self.n = self.im.n_frames//2
+        self.n = self.im.n_frames//3
         self.frames = self.images()
         self.params = rcParams().params
         self.docs = None
@@ -431,7 +431,7 @@ class FluorescenceImage(object):
                     self.im.n_frames = len(self.frames)
                     self.tags = data_read[1]
                 except IOError:
-                    warn('Sif file could not be read. Try on Windows machine')
+                    raise IOError('Sif file could not be read or file doesn\'t exist. Try on Windows machine.')
             elif sys.platform.startswith('dar'):
                 try:
                     data_read = np_open(filePath)
@@ -440,7 +440,7 @@ class FluorescenceImage(object):
                     self.im.n_frames = len(self.frames)
                     self.tags = data_read[1]
                 except IOError:
-                    warn('Sif file could not be read. Try on Windows machine')
+                    raise IOError('Sif file could not be read or file doesn\'t exist. Try on Windows machine.')
             else:
                 warn('Andor *.sif files could not be read in your OS as ATSIFIO64.dll is only available for windows.')
         else:
